@@ -30,6 +30,20 @@ jobs:
 
           errors = []
 
+          # quality is a CI-owned field (KTD9): an author must not set or change
+          # it. Load the value already on main so a hand-edited quality can be
+          # rejected before merge, keeping a self-reported tier off main and Pages.
+          import subprocess as _sp
+          _base = _sp.run(['git', 'show', 'origin/main:index.json'],
+                          capture_output=True, text=True)
+          base_quality = {}
+          if _base.returncode == 0:
+              try:
+                  base_quality = {p['name']: p.get('quality')
+                                  for p in json.loads(_base.stdout).get('packs', [])}
+              except Exception:
+                  base_quality = {}
+
           # Check version
           if data.get('version') != 1:
               errors.append(f'version must be 1, got {data.get("version")}')
@@ -86,6 +100,11 @@ jobs:
               tier = pack.get('trust_tier', '')
               if tier and tier not in VALID_TIERS:
                   errors.append(f'{prefix}: trust_tier "{tier}" not in {VALID_TIERS}')
+
+              # CI-owned quality (KTD9): reject a hand-set or changed tier.
+              q = pack.get('quality')
+              if q is not None and q != base_quality.get(name):
+                  errors.append(f'{prefix}: "quality" is set by CI and cannot be hand-edited; remove it from your entry')
 
           if errors:
               count = len(errors)
@@ -694,6 +713,16 @@ jobs:
                               if not rel:
                                   continue
                               dest = os.path.join(pack_dir, rel)
+                              # Reject path-traversal members before writing. This job
+                              # runs on pull_request_target with contents:write and
+                              # extracts an unreviewed contributor tarball, so a crafted
+                              # member must not escape the temp dir (KTD11). Symlinks and
+                              # hardlinks fall through (only isdir/isfile are written).
+                              real_dest = os.path.realpath(dest)
+                              real_root = os.path.realpath(pack_dir)
+                              if real_dest != real_root and not real_dest.startswith(real_root + os.sep):
+                                  print(f"  Skipping unsafe tarball member: {m.name}")
+                                  continue
                               if m.isdir():
                                   os.makedirs(dest, exist_ok=True)
                               elif m.isfile():
@@ -929,6 +958,14 @@ jobs:
                       lines.append(f"> **Error:** {qr['error']}\n")
                       continue
 
+                  # Pack-level loudness findings — these demote GOLD to SILVER.
+                  pack_warnings = qr.get('pack_warnings', [])
+                  if pack_warnings:
+                      lines.append("**Pack-level findings** — these affect the tier:\n")
+                      for pw in pack_warnings:
+                          lines.append(f"- **{pw['message']}** — {pw['detail']}")
+                      lines.append("")
+
                   # REJECTED: show all blocking issues with file details
                   if verdict == 'REJECTED' and nblocks > 0:
                       lines.append("**Blocking issues** — these must be fixed before the pack can be accepted:\n")
@@ -980,6 +1017,8 @@ jobs:
                   lines.append("| Bitrate | — | < 64 kbps |")
                   lines.append("| Sample rate | < 8000 Hz | < 16000 Hz |")
                   lines.append("| Duration | > 20.0s or < 0.1s | > 5.0s |")
+                  lines.append("| Pack loudness spread | — | > 15 LU |")
+                  lines.append("| Pack median loudness | — | <= -26 LUFS |")
                   lines.append("\n</details>\n")
 
               lines.append("")
