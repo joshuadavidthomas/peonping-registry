@@ -12872,7 +12872,7 @@
             ],
             "language": "en",
             "license": "CC-BY-NC-4.0",
-            "sound_count": 37,
+            "sound_count": 36,
             "total_size_bytes": 4215267,
             "source_repo": "joshuadavidthomas/openpeon-vulcan",
             "source_ref": "v1.0.0",
@@ -12889,8 +12889,7 @@
                 "smack-my-huge-iron-buttocks.mp3"
             ],
             "added": "2026-07-17",
-            "updated": "2026-07-17",
-            "quality": "unreviewed"
+            "updated": "2026-07-17"
         },
         {
             "name": "warcraft-peon",
