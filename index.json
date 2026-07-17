@@ -12850,6 +12850,48 @@
             "quality": "silver"
         },
         {
+            "name": "vulcan",
+            "display_name": "Vulcan",
+            "version": "1.0.0",
+            "description": "A coding spin on Birmingham's imaginary talking Vulcan statue, delivering forecasts, bad jokes, and trivia in a booming baritone.",
+            "author": {
+                "name": "Josh Thomas",
+                "github": "joshuadavidthomas"
+            },
+            "trust_tier": "community",
+            "categories": [
+                "input.required",
+                "resource.limit",
+                "session.end",
+                "session.start",
+                "task.acknowledge",
+                "task.complete",
+                "task.error",
+                "task.progress",
+                "user.spam"
+            ],
+            "language": "en",
+            "license": "CC-BY-NC-4.0",
+            "sound_count": 36,
+            "total_size_bytes": 4215267,
+            "source_repo": "joshuadavidthomas/openpeon-vulcan",
+            "source_ref": "v1.0.0",
+            "source_path": ".",
+            "manifest_sha256": "68bf1f3c6f1ef19c57e7a319581a4580adbf6bb0a8e575f9234197c76a1d5ed2",
+            "tags": [
+                "comedy",
+                "birmingham",
+                "radio",
+                "vulcan"
+            ],
+            "preview_sounds": [
+                "good-morning-coder-good-morning-computer.mp3",
+                "smack-my-huge-iron-buttocks.mp3"
+            ],
+            "added": "2026-07-17",
+            "updated": "2026-07-17"
+        },
+        {
             "name": "warcraft-peon",
             "display_name": "Warcraft 3 Peon",
             "version": "1.0.0",
